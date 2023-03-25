@@ -21,25 +21,26 @@ public:
 	}
 };
 
-class FPskData
+class UNREALPSKPSA_API FPskReader
 {
 public:
+	FPskReader(const FString& Filepath);
+	
 	bool bIsValid = false;
+	bool bHasVertexNormals = false;
+	bool bHasVertexColors = false;
+	bool bHasMorphData = false;
 	
 	TArray<FVector3f> Vertices;
 	TArray<VVertex> Wedges;
 	TArray<VTriangle> Faces;
 	TArray<VMaterial> Materials;
 	TArray<FVector3f> Normals;
-	TArray<FLinearColor> VertexColors;
+	TArray<FColor> VertexColors;
 	TArray<TArray<FVector2f>> ExtraUVs;
+	TArray<VMorphInfo> MorphInfos;
+	TArray<VMorphData> MorphDatas;
 
 	TArray<VNamedBoneBinary> Bones;
 	TArray<VRawBoneInfluence> Influences;
-};
-
-class FPskReader
-{
-public:
-	static FPskData Read(FString Filepath);
 };

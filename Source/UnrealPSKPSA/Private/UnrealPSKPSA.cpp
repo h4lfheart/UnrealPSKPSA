@@ -4,6 +4,8 @@
 
 #define LOCTEXT_NAMESPACE "FUnrealPSKPSAModule"
 
+DEFINE_LOG_CATEGORY(LogUnrealPSKPSA);
+
 void FUnrealPSKPSAModule::StartupModule()
 {
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module

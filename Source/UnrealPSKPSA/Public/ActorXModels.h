@@ -61,3 +61,16 @@ struct VRawBoneInfluence
 	int PointIdx;
 	int BoneIdx;
 };
+
+struct VMorphInfo
+{
+	char Name[64];
+	int VertexCount;
+};
+
+struct VMorphData
+{
+	FVector3f PositionDelta;
+	FVector3f TangentZDelta;
+	int PointIdx;
+};
