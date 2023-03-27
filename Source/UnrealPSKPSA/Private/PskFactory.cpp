@@ -3,14 +3,13 @@
 #include "IMeshBuilderModule.h"
 #include "PskPsaUtils.h"
 #include "PskReader.h"
-#include "UnrealPSKPSA.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "Materials/MaterialInstanceConstant.h"
 #include "Rendering/SkeletalMeshLODImporterData.h"
 #include "Rendering/SkeletalMeshLODModel.h"
 #include "Rendering/SkeletalMeshModel.h"
 
-UObject* UPskFactory::Import(const FString& Filename, UObject* Parent, const FName Name, const EObjectFlags Flags)
+UObject* UPskFactory::Import(const FString& Filename, UObject* Parent, const FName Name, const EObjectFlags Flags, TMap<FString, FString> MaterialNameToPathMap)
 {
 	auto Data = FPskReader(Filename);
 	if (!Data.bIsValid) return nullptr;
@@ -79,10 +78,13 @@ UObject* UPskFactory::Import(const FString& Filename, UObject* Parent, const FNa
 		SkeletalMeshImportData.Faces.Add(Face);
 	}
 
+	TArray<FString> AddedBoneNames;
 	for (auto PskBone : Data.Bones)
 	{
 		SkeletalMeshImportData::FBone Bone;
 		Bone.Name = PskBone.Name;
+		if (AddedBoneNames.Contains(Bone.Name)) continue;
+		
 		Bone.NumChildren = PskBone.NumChildren;
 		Bone.ParentIndex = PskBone.ParentIndex == -1 ? INDEX_NONE : PskBone.ParentIndex;
 		
@@ -100,6 +102,7 @@ UObject* UPskFactory::Import(const FString& Filename, UObject* Parent, const FNa
 
 		Bone.BonePos = BonePos;
 		SkeletalMeshImportData.RefBonesBinary.Add(Bone);
+		AddedBoneNames.Add(Bone.Name);
 	}
 
 	for (auto PskInfluence : Data.Influences)
@@ -116,7 +119,18 @@ UObject* UPskFactory::Import(const FString& Filename, UObject* Parent, const FNa
 		SkeletalMeshImportData::FMaterial Material;
 		Material.MaterialImportName = PskMaterial.MaterialName;
 
-		auto MaterialAdd = FPskPsaUtils::LocalFindOrCreate<UMaterialInstanceConstant>(UMaterialInstanceConstant::StaticClass(), Parent, PskMaterial.MaterialName, Flags);
+		UObject* MatParent;
+		auto FoundMaterialPath = MaterialNameToPathMap.Find(*Material.MaterialImportName);
+		if (FoundMaterialPath != nullptr)
+		{
+			MatParent = CreatePackage(**FoundMaterialPath);
+		}
+		else
+		{
+			MatParent = Parent;
+		}
+		
+		auto MaterialAdd = FPskPsaUtils::LocalFindOrCreate<UMaterialInstanceConstant>(UMaterialInstanceConstant::StaticClass(), MatParent, PskMaterial.MaterialName, Flags);
 		Material.Material = MaterialAdd;
 		SkeletalMeshImportData.Materials.Add(Material);
 	}
@@ -145,8 +159,8 @@ UObject* UPskFactory::Import(const FString& Filename, UObject* Parent, const FNa
 
 	FSkeletalMeshLODModel LODModel;
 	LODModel.NumTexCoords = FMath::Max<uint32>(1, SkeletalMeshImportData.NumTexCoords);
-
-	const auto SkeletalMesh = NewObject<USkeletalMesh>(Parent, USkeletalMesh::StaticClass(), Name, Flags);
+	
+	const auto SkeletalMesh = FPskPsaUtils::LocalCreate<USkeletalMesh>(USkeletalMesh::StaticClass(), Parent, Name.ToString(), Flags);
 	SkeletalMesh->PreEditChange(nullptr);
 	SkeletalMesh->InvalidateDeriveDataCacheGUID();
 	SkeletalMesh->UnregisterAllMorphTarget();
