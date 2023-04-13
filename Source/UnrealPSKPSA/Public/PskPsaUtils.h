@@ -4,7 +4,7 @@
 class FPskPsaUtils
 {
 public:
-	template <typename T>
+	template <typename T, typename = UObject>
 	static T* LocalFindOrCreate(UClass* StaticClass, UObject* FactoryParent, FString Filename, EObjectFlags Flags)
 	{
 		const auto Package = CreatePackage(*FPaths::Combine(FPaths::GetPath(FactoryParent->GetPathName() + "/"), Filename));
@@ -17,7 +17,7 @@ public:
 			FAssetRegistryModule::AssetCreated(Asset);
 			Asset->MarkPackageDirty();
 		}
-
+		
 		return Asset;
 	}
 

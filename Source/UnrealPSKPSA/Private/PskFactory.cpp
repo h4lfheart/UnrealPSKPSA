@@ -69,8 +69,6 @@ UObject* UPskFactory::Import(const FString& Filename, UObject* Parent, const FNa
 			Face.TangentZ[VertexIndex] = Data.bHasVertexNormals ? Data.Normals[PskWedge.PointIndex] : FVector3f::ZeroVector;
 			Face.TangentY[VertexIndex] = FVector3f::ZeroVector;
 			Face.TangentX[VertexIndex] = FVector3f::ZeroVector;
-
-			
 		}
 		Swap(Face.WedgeIndex[0], Face.WedgeIndex[2]);
 		Swap(Face.TangentZ[0], Face.TangentZ[2]);
