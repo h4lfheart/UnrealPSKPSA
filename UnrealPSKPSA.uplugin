@@ -18,7 +18,11 @@
 		{
 			"Name": "UnrealPSKPSA",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"ProceduralMeshComponent",
+				"EditorScriptingUtilities"
+			]
 		}
 	]
 }
