@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Factories/Factory.h"
+#include "Engine/SkinnedAssetCommon.h"
 #include "PskFactory.generated.h"
 
 UCLASS()
